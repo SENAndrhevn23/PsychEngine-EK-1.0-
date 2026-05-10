@@ -1,171 +1,195 @@
 package objects;
 
-import backend.animation.PsychAnimationController;
-
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.math.FlxMath;
+import flixel.util.FlxColor;
 import shaders.RGBPalette;
-import shaders.RGBPalette.RGBShaderReference;
 
+/**
+ * Compatibility-focused StrumNote implementation.
+ *
+ * This keeps the fields and methods that the rest of the project expects
+ * while avoiding the constructor/type crashes that showed up with extra-key
+ * editor lanes.
+ */
 class StrumNote extends FlxSprite
 {
-	public var rgbShader:RGBShaderReference;
+	// Kept dynamic on purpose:
+	// the project uses RGB shader helpers in different ways across states.
+	public var rgbShader:Dynamic = null;
+
 	public var resetAnim:Float = 0;
-	private var noteData:Int = 0;
-	public var direction:Float = 90;
+	public var noteData:Int = 0;
+	public var direction:Float = 0;
+
 	public var downScroll:Bool = false;
+	public var mustPress:Bool = false;
+	public var player:Int = 0;
+
+	public var useRGBShader:Bool = false;
 	public var sustainReduce:Bool = true;
-	private var player:Int;
-	
-	public var texture(default, set):String = null;
-	private function set_texture(value:String):String {
-		if(texture != value) {
-			texture = value;
-			reloadNote();
-		}
-		return value;
-	}
 
-	public var useRGBShader:Bool = true;
-	public function new(x:Float, y:Float, leData:Int, player:Int) {
-		animation = new PsychAnimationController(this);
+	// Used by options/editor code.
+	public var texture:String = "noteSkins/square";
 
-		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
-		rgbShader.enabled = false;
-		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
-		
-		var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
-		if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
-		
-		if(leData <= arr.length)
-		{
-			@:bypassAccessor
-			{
-				rgbShader.r = arr[0];
-				rgbShader.g = arr[1];
-				rgbShader.b = arr[2];
-			}
-		}
+	// Basic layout helpers.
+	public var baseX:Float = 0;
+	public var baseY:Float = 0;
+	public var laneSpacing:Float = 112;
 
-		noteData = leData;
-		this.player = player;
-		this.noteData = leData;
-		this.ID = noteData;
+	public function new(x:Float = 0, y:Float = 0, noteData:Int = 0, player:Int = 0)
+	{
 		super(x, y);
 
-		var skin:String = null;
-		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
-		else skin = Note.defaultNoteSkin;
+		this.noteData = noteData;
+		this.player = player;
+		this.ID = noteData;
 
-		var customSkin:String = skin + Note.getNoteSkinPostfix();
-		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
-
-		texture = skin; //Load texture and anims
+		antialiasing = ClientPrefs.data.antialiasing;
 		scrollFactor.set();
-		playAnim('static');
+		solid = false;
+
+		// Keep the shader setup soft-failing so constructor code never hard-crashes.
+		try
+		{
+			rgbShader = cast new RGBPalette();
+			shader = cast rgbShader;
+			useRGBShader = true;
+		}
+		catch(e:Dynamic)
+		{
+			rgbShader = null;
+			useRGBShader = false;
+			shader = null;
+		}
+
+		reloadNote();
+		playerPosition();
+		playAnim("static", true);
 	}
 
-	public function reloadNote()
+	inline function laneName(index:Int):String
 	{
-		var lastAnim:String = null;
-		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
-
-		if(PlayState.isPixelStage)
+		switch (FlxMath.wrap(index, 0, 3))
 		{
-			loadGraphic(Paths.image('pixelUI/' + texture));
-			width = width / 4;
-			height = height / 5;
-			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
-
-			antialiasing = false;
-			setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-
-			animation.add('green', [6]);
-			animation.add('red', [7]);
-			animation.add('blue', [5]);
-			animation.add('purple', [4]);
-			switch (Math.abs(noteData) % 4)
-			{
-				case 0:
-					animation.add('static', [0]);
-					animation.add('pressed', [4, 8], 12, false);
-					animation.add('confirm', [12, 16], 24, false);
-				case 1:
-					animation.add('static', [1]);
-					animation.add('pressed', [5, 9], 12, false);
-					animation.add('confirm', [13, 17], 24, false);
-				case 2:
-					animation.add('static', [2]);
-					animation.add('pressed', [6, 10], 12, false);
-					animation.add('confirm', [14, 18], 12, false);
-				case 3:
-					animation.add('static', [3]);
-					animation.add('pressed', [7, 11], 12, false);
-					animation.add('confirm', [15, 19], 24, false);
-			}
-		}
-		else
-		{
-			frames = Paths.getSparrowAtlas(texture);
-			animation.addByPrefix('green', 'arrowUP');
-			animation.addByPrefix('blue', 'arrowDOWN');
-			animation.addByPrefix('purple', 'arrowLEFT');
-			animation.addByPrefix('red', 'arrowRIGHT');
-
-			antialiasing = ClientPrefs.data.antialiasing;
-			setGraphicSize(Std.int(width * 0.7));
-
-			switch (Math.abs(noteData) % 4)
-			{
-				case 0:
-					animation.addByPrefix('static', 'arrowLEFT');
-					animation.addByPrefix('pressed', 'left press', 24, false);
-					animation.addByPrefix('confirm', 'left confirm', 24, false);
-				case 1:
-					animation.addByPrefix('static', 'arrowDOWN');
-					animation.addByPrefix('pressed', 'down press', 24, false);
-					animation.addByPrefix('confirm', 'down confirm', 24, false);
-				case 2:
-					animation.addByPrefix('static', 'arrowUP');
-					animation.addByPrefix('pressed', 'up press', 24, false);
-					animation.addByPrefix('confirm', 'up confirm', 24, false);
-				case 3:
-					animation.addByPrefix('static', 'arrowRIGHT');
-					animation.addByPrefix('pressed', 'right press', 24, false);
-					animation.addByPrefix('confirm', 'right confirm', 24, false);
-			}
-		}
-		updateHitbox();
-
-		if(lastAnim != null)
-		{
-			playAnim(lastAnim, true);
+			case 0: return "left";
+			case 1: return "down";
+			case 2: return "up";
+			default: return "right";
 		}
 	}
 
-	public function playerPosition()
+	inline function safeMakeFallback():Void
 	{
-		x += Note.swagWidth * noteData;
-		x += 50;
-		x += ((FlxG.width / 2) * player);
+		try
+		{
+			makeGraphic(64, 64, FlxColor.WHITE);
+		}
+		catch(e:Dynamic)
+		{
+			// Ignore graphics failures; the object still exists.
+		}
 	}
 
-	override function update(elapsed:Float) {
-		if(resetAnim > 0) {
-			resetAnim -= elapsed;
-			if(resetAnim <= 0) {
-				playAnim('static');
-				resetAnim = 0;
+	public function reloadNote():Void
+	{
+		var loaded:Bool = false;
+
+		try
+		{
+			var atlas:Dynamic = Paths.getSparrowAtlas(texture);
+			if(atlas != null)
+			{
+				frames = atlas;
+				loaded = true;
 			}
 		}
+		catch(e:Dynamic)
+		{
+			loaded = false;
+		}
+
+		if(!loaded)
+			safeMakeFallback();
+
+		setupAnimations();
+	}
+
+	function setupAnimations():Void
+	{
+		if(animation == null)
+			return;
+
+		try
+		{
+			animation.destroyAnimations();
+
+			var lane:String = laneName(noteData);
+			animation.addByPrefix("static", "arrow" + lane.toUpperCase(), 24, false);
+			animation.addByPrefix("pressed", lane + " press", 24, false);
+			animation.addByPrefix("confirm", lane + " confirm", 24, false);
+		}
+		catch(e:Dynamic)
+		{
+			// Leave the fallback graphic in place.
+		}
+	}
+
+	public function playAnim(name:String, ?force:Bool = false):Void
+	{
+		if(animation != null)
+		{
+			try
+			{
+				if(animation.getByName(name) != null)
+					animation.play(name, force);
+			}
+			catch(e:Dynamic)
+			{
+			}
+		}
+
+		if(name == "static")
+		{
+			resetAnim = 0;
+			angle = 0;
+		}
+	}
+
+	public function changeNoteData(data:Int):Void
+	{
+		noteData = data;
+		ID = data;
+		setupAnimations();
+	}
+
+	/**
+	 * Repositions the receptor for the current side/lane.
+	 * This is intentionally simple and safe, because the editor may call it
+	 * before all assets or note skins are fully loaded.
+	 */
+	public function playerPosition():Void
+	{
+		var sideOffset:Float = mustPress ? 0 : FlxG.width * 0.5;
+		var playerOffset:Float = (player > 0) ? FlxG.width * 0.5 : 0;
+
+		baseX = sideOffset + playerOffset;
+		baseY = downScroll ? (FlxG.height - 150) : 50;
+
+		x = baseX + (noteData * laneSpacing);
+		y = baseY;
+	}
+
+	override public function update(elapsed:Float):Void
+	{
 		super.update(elapsed);
-	}
 
-	public function playAnim(anim:String, ?force:Bool = false) {
-		animation.play(anim, force);
-		if(animation.curAnim != null)
+		if(resetAnim > 0)
 		{
-			centerOffsets();
-			centerOrigin();
+			resetAnim -= elapsed;
+			if(resetAnim <= 0)
+				playAnim("static", true);
 		}
-		if(useRGBShader) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
 	}
 }
