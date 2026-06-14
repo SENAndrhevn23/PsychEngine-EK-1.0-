@@ -40,12 +40,18 @@ class EditorPlayState extends MusicBeatSubstate
 	var lastRating:FlxSprite;
 	var lastCombo:FlxSprite;
 	var lastScore:Array<FlxSprite> = [];
-	var keysArray:Array<String> = [
-		'note_left',
-		'note_down',
-		'note_up',
-		'note_right'
-	];
+	var keysArray:Array<String> = switch(Main.mania)
+	{
+		case 0: ['note_1'];
+		case 1: ['note_2a', 'note_2b'];
+		case 2: ['note_3a', 'note_3b', 'note_3c'];
+		case 3: ['note_left', 'note_down', 'note_up', 'note_right'];
+		case 4: ['note_5a', 'note_5b', 'note_5c', 'note_5d', 'note_5e'];
+		case 5: ['note_6a', 'note_6b', 'note_6c', 'note_6d', 'note_6e', 'note_6f'];
+		case 6: ['note_7a', 'note_7b', 'note_7c', 'note_7d', 'note_7e', 'note_7f', 'note_7g'];
+		case 7: ['note_8a', 'note_8b', 'note_8c', 'note_8d', 'note_8e', 'note_8f', 'note_8g', 'note_8h'];
+		default: ['note_9a', 'note_9b', 'note_9c', 'note_9d', 'note_9e', 'note_9f', 'note_9g', 'note_9h', 'note_9i'];
+	};
 	
 	var songHits:Int = 0;
 	var songMisses:Int = 0;
@@ -444,7 +450,7 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? PlayState.STRUM_X_MIDDLESCROLL : PlayState.STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
-		for (i in 0...4)
+		for (i in 0...keysArray.length)
 		{
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;

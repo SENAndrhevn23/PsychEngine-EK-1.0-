@@ -42,19 +42,19 @@ import states.TitleState;
 		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038],
 		[0xFF999999, 0xFFFFFFFF, 0xFF201E31],
 		[0xFFFFFF00, 0xFFFFFFFF, 0xFF993300],
-		[0xFF8b4aff, 0xFFFFFFFF, 0xFF3b177d],
+		[0xFF8B4AFF, 0xFFFFFFFF, 0xFF3B177D],
 		[0xFFFF0000, 0xFFFFFFFF, 0xFF660000],
-		[0xFF0033ff, 0xFFFFFFFF, 0xFF000066]];
+		[0xFF0033FF, 0xFFFFFFFF, 0xFF000066]];
 	public var arrowRGBPixelExtra:Array<Array<FlxColor>> = [
 		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
 		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000],
-		[0xFFb6b6b6, 0xFFFFFFFF, 0xFF444444],
-		[0xFFffd94a, 0xFFfffff9, 0xFF663500],
-		[0xFFB055BC, 0xFFf4f4ff, 0xFF4D0060],
-		[0xFFdf3e23, 0xFFffe6e9, 0xFF440000],
-		[0xFF2F69E5, 0xFFf5f5ff, 0xFF000F5D]];
+		[0xFFB6B6B6, 0xFFFFFFFF, 0xFF444444],
+		[0xFFFFD94A, 0xFFFFF9FF, 0xFF663500],
+		[0xFFB055BC, 0xFFF4F4FF, 0xFF4D0060],
+		[0xFFDF3E23, 0xFFFFE6E9, 0xFF440000],
+		[0xFF2F69E5, 0xFFF5F5FF, 0xFF000F5D]];
 
 	public var ghostTapping:Bool = true;
 	public var timeBarType:String = 'Time Left';
@@ -106,59 +106,10 @@ class ClientPrefs {
 	//Every key has two binds, add your key bind down here and then add your control on options/ControlsSubState.hx and Controls.hx
 	public static var keyBinds:Map<String, Array<FlxKey>> = [
 		//Key Bind, Name for ControlsSubState
-		'note_1'		=> [SPACE],
-		
-		'note_2a'		=> [A, LEFT],
-		'note_2b'		=> [D, RIGHT],
-		
-		'note_3a'		=> [A, LEFT],
-		'note_3b'		=> [SPACE],
-		'note_3c'		=> [D, RIGHT],
-		
 		'note_up'		=> [W, UP],
 		'note_left'		=> [A, LEFT],
 		'note_down'		=> [S, DOWN],
 		'note_right'	=> [D, RIGHT],
-		
-		'note_5a'		=> [A, LEFT],
-		'note_5b'		=> [S, DOWN],
-		'note_5c'		=> [SPACE],
-		'note_5d'		=> [W, UP],
-		'note_5e'		=> [D, RIGHT],
-		
-		'note_6a'		=> [S],
-		'note_6b'		=> [D],
-		'note_6c'		=> [F],
-		'note_6d'		=> [J],
-		'note_6e'		=> [K],
-		'note_6f'		=> [L],
-		
-		'note_7a'		=> [S],
-		'note_7b'		=> [D],
-		'note_7c'		=> [F],
-		'note_7d'		=> [SPACE],
-		'note_7e'		=> [J],
-		'note_7f'		=> [K],
-		'note_7g'		=> [L],
-		
-		'note_8a'		=> [A],
-		'note_8b'		=> [S],
-		'note_8c'		=> [D],
-		'note_8d'		=> [F],
-		'note_8e'		=> [H],
-		'note_8f'		=> [J],
-		'note_8g'		=> [K],
-		'note_8h'		=> [L],
-		
-		'note_9a'		=> [A],
-		'note_9b'		=> [S],
-		'note_9c'		=> [D],
-		'note_9d'		=> [F],
-		'note_9e'		=> [SPACE],
-		'note_9f'		=> [H],
-		'note_9g'		=> [J],
-		'note_9h'		=> [K],
-		'note_9i'		=> [L],
 		
 		'ui_up'			=> [W, UP],
 		'ui_left'		=> [A, LEFT],

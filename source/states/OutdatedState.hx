@@ -1,8 +1,20 @@
 package states;
 
+import backend.CoolUtil;
+import backend.Paths;
+import backend.MusicBeatState;
+import states.MainMenuState;
+import flixel.FlxG;
+import flixel.FlxSprite;
+import flixel.text.FlxText;
+import flixel.util.FlxColor;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
+
 class OutdatedState extends MusicBeatState
 {
 	public static var leftState:Bool = false;
+	public static var updateVersion:String = CoolUtil.checkForUpdates();
 
 	var warnText:FlxText;
 	override function create()
@@ -13,24 +25,22 @@ class OutdatedState extends MusicBeatState
 		add(bg);
 
 		warnText = new FlxText(0, 0, FlxG.width,
-			"Sup bro, looks like you're running an   \n
-			outdated version of Psych Engine Extra Keys (" + MainMenuState.extraKeysVersion + "),\n
-			please update to " + TitleState.updateVersion + "!\n
-			Press ESCAPE to proceed anyway.\n
-			\n
-			Thank you for using the Engine!",
+			'Sup bro, looks like you\'re running an\n' +
+			'outdated version of Psych Engine Extra Keys (' + MainMenuState.extraKeysVersion + '),\n' +
+			'please update to ' + updateVersion + '!\n' +
+			'Press ESCAPE to proceed anyway.\n' +
+			'\nThank you for using the Engine!',
 			32);
-		warnText.setFormat("VCR OSD Mono", 32, FlxColor.WHITE, CENTER);
+		warnText.setFormat(Paths.font("vcr.ttf"), 32, FlxColor.WHITE, CENTER);
 		warnText.screenCenter(Y);
 		add(warnText);
 	}
-
 	override function update(elapsed:Float)
 	{
 		if(!leftState) {
 			if (controls.ACCEPT) {
 				leftState = true;
-				CoolUtil.browserLoad("https://github.com/Magman03k7/PsychEngine-ExtraKeys/releases");
+				CoolUtil.browserLoad("https://github.com/ShadowMario/FNF-PsychEngine/releases");
 			}
 			else if(controls.BACK) {
 				leftState = true;

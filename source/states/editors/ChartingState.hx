@@ -87,9 +87,9 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 		['Play Sound', "Value 1: Sound file name\nValue 2: Volume (Default: 1), ranges from 0 to 1"]
 	];
 	
-	public static var keysArray:Array<FlxKey> = [ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT, NINE]; //Used for Vortex Editor
+	public static var keysArray:Array<FlxKey> = [ONE, TWO, THREE, FOUR, FIVE, SIX, SEVEN, EIGHT]; //Used for Vortex Editor
 	public static var SHOW_EVENT_COLUMN = true;
-	public static var GRID_COLUMNS_PER_PLAYER = 4;
+	public static var GRID_COLUMNS_PER_PLAYER = Main.mania + 1;
 	public static var GRID_PLAYERS = 2;
 	public static var GRID_SIZE = 40;
 	final BACKUP_EXT = '.bkp';
@@ -628,6 +628,11 @@ class ChartingState extends MusicBeatState implements PsychUIEventHandler.PsychU
 	function onChartLoaded()
 	{
 		if(PlayState.SONG == null) return;
+		if(PlayState.SONG.mania != null)
+		{
+			Main.mania = PlayState.SONG.mania;
+			GRID_COLUMNS_PER_PLAYER = Main.mania + 1;
+		}
 
 		// SONG TAB
 		songNameInputText.text = PlayState.SONG.song;

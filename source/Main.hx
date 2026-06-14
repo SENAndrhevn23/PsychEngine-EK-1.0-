@@ -59,7 +59,7 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPSCounter;
-	public static var mania:Int = 3; // 0-based key mode, 3 = 4 keys by default
+	public static var mania:Int = 3;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
