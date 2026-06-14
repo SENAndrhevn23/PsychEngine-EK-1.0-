@@ -1,7 +1,6 @@
 package objects;
 
 import backend.animation.PsychAnimationController;
-
 import shaders.RGBPalette;
 import shaders.RGBPalette.RGBShaderReference;
 
@@ -23,11 +22,9 @@ class StrumNote extends FlxSprite
 		}
 		return value;
 	}
-
 	public var useRGBShader:Bool = true;
 	public function new(x:Float, y:Float, leData:Int, player:Int) {
 		animation = new PsychAnimationController(this);
-
 		rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
 		rgbShader.enabled = false;
 		if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
@@ -44,40 +41,32 @@ class StrumNote extends FlxSprite
 				rgbShader.b = arr[2];
 			}
 		}
-
 		noteData = leData;
 		this.player = player;
 		this.noteData = leData;
 		this.ID = noteData;
 		super(x, y);
-
 		var skin:String = null;
 		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
 		else skin = Note.defaultNoteSkin;
-
 		var customSkin:String = skin + Note.getNoteSkinPostfix();
 		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
-
 		texture = skin; //Load texture and anims
 		scrollFactor.set();
 		playAnim('static');
 	}
-
 	public function reloadNote()
 	{
 		var lastAnim:String = null;
 		if(animation.curAnim != null) lastAnim = animation.curAnim.name;
-
 		if(PlayState.isPixelStage)
 		{
 			loadGraphic(Paths.image('pixelUI/' + texture));
 			width = width / 9;
 			height = height / 5;
 			loadGraphic(Paths.image('pixelUI/' + texture), true, Math.floor(width), Math.floor(height));
-
 			antialiasing = false;
 			setGraphicSize(Std.int(width * PlayState.daPixelZoom * Note.scalesPixel[Main.mania]));
-
 			animation.add('purple', [9]);
 			animation.add('blue', [10]);
 			animation.add('green', [11]);
@@ -87,7 +76,6 @@ class StrumNote extends FlxSprite
 			animation.add('violet', [15]);
 			animation.add('black', [16]);
 			animation.add('dark', [17]);
-
 			var dataNum = Note.gfxIndex[Main.mania][noteData];
 			animation.add('static', [dataNum]);
 			animation.add('pressed', [9 + dataNum, 18 + dataNum], 12, false);
@@ -105,10 +93,8 @@ class StrumNote extends FlxSprite
 			animation.addByPrefix('violet', 'arrowDOWN');
 			animation.addByPrefix('black', 'arrowUP');
 			animation.addByPrefix('dark', 'arrowRIGHT');
-
 			antialiasing = ClientPrefs.data.antialiasing;
 			setGraphicSize(Std.int(width * Note.scales[Main.mania]));
-
 			var dirName = Note.gfxDir[Note.gfxHud[Main.mania][noteData]];
 			var pressName = Note.colArray[Note.gfxIndex[Main.mania][noteData]];
 			var pressNameAlt = Note.pressArrayAlt[Note.gfxIndex[Main.mania][noteData]];
@@ -119,13 +105,11 @@ class StrumNote extends FlxSprite
 			animation.addByPrefix('confirm', pressName + ' confirm', 24, false);
 		}
 		updateHitbox();
-
 		if(lastAnim != null)
 		{
 			playAnim(lastAnim, true);
 		}
 	}
-
 	public function postAddedToGroup()
 	{
 		playAnim('static');
@@ -135,19 +119,10 @@ class StrumNote extends FlxSprite
 		x -= Note.posRest[Main.mania];
 		ID = noteData;
 	}
-
 	public function playerPosition()
 	{
 		postAddedToGroup();
 	}
-
-	public function playerPosition()
-	{
-		x += Note.swagWidth * noteData;
-		x += 50;
-		x += ((FlxG.width / 2) * player);
-	}
-
 	override function update(elapsed:Float) {
 		if(resetAnim > 0) {
 			resetAnim -= elapsed;
@@ -158,7 +133,6 @@ class StrumNote extends FlxSprite
 		}
 		super.update(elapsed);
 	}
-
 	public function playAnim(anim:String, ?force:Bool = false) {
 		animation.play(anim, force);
 		if(animation.curAnim != null)
