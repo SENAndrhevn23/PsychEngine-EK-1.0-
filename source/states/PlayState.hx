@@ -257,7 +257,7 @@ class PlayState extends MusicBeatState
 	public var introSoundsSuffix:String = '';
 
 	// Less laggy controls
-	private var keysArray:Array<String>;
+	private var keysArray:Array<Array<String>>;
 	public var songName:String;
 
 	// Callbacks for stages
@@ -288,10 +288,15 @@ class PlayState extends MusicBeatState
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
 
 		keysArray = [
-			'note_left',
-			'note_down',
-			'note_up',
-			'note_right'
+			['note_1'],
+			['note_2a', 'note_2b'],
+			['note_3a', 'note_3b', 'note_3c'],
+			['note_left', 'note_down', 'note_up', 'note_right'],
+			['note_5a', 'note_5b', 'note_5c', 'note_5d', 'note_5e'],
+			['note_6a', 'note_6b', 'note_6c', 'note_6d', 'note_6e', 'note_6f'],
+			['note_7a', 'note_7b', 'note_7c', 'note_7d', 'note_7e', 'note_7f', 'note_7g'],
+			['note_8a', 'note_8b', 'note_8c', 'note_8d', 'note_8e', 'note_8f', 'note_8g', 'note_8h'],
+			['note_9a', 'note_9b', 'note_9c', 'note_9d', 'note_9e', 'note_9f', 'note_9g', 'note_9h', 'note_9i']
 		];
 
 		if(FlxG.sound.music != null)
@@ -1269,7 +1274,7 @@ class PlayState extends MusicBeatState
 
 	private var noteTypes:Array<String> = [];
 	private var eventsPushed:Array<String> = [];
-	private var totalColumns: Int = 4;
+	private var totalColumns:Int = 4;
 
 	private function generateSong():Void
 	{
@@ -1285,6 +1290,22 @@ class PlayState extends MusicBeatState
 		}
 
 		var songData = SONG;
+		totalColumns = 4;
+		if(songData != null && songData.notes != null)
+		{
+			for (section in songData.notes)
+			{
+				if(section == null || section.sectionNotes == null) continue;
+				for (songNotes in section.sectionNotes)
+				{
+					if(songNotes == null || songNotes.length < 2) continue;
+					var lane:Int = Std.int(songNotes[1]) + 1;
+					if(lane > totalColumns) totalColumns = lane;
+				}
+			}
+		}
+		if(totalColumns > 9) totalColumns = 9;
+		Main.mania = totalColumns - 1;
 		Conductor.bpm = songData.bpm;
 
 		curSong = songData.song;
@@ -1425,7 +1446,7 @@ class PlayState extends MusicBeatState
 						else if(ClientPrefs.data.middleScroll)
 						{
 							sustainNote.x += 310;
-							if(noteColumn > 1) //Up and Right
+							if(noteColumn > Note.midArray[Main.mania]) //Up and Right
 								sustainNote.x += FlxG.width / 2 + 25;
 						}
 					}
@@ -1528,7 +1549,7 @@ class PlayState extends MusicBeatState
 	{
 		var strumLineX:Float = ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X;
 		var strumLineY:Float = ClientPrefs.data.downScroll ? (FlxG.height - 150) : 50;
-		for (i in 0...4)
+		for (i in 0...totalColumns)
 		{
 			// FlxG.log.add(i);
 			var targetAlpha:Float = 1;
@@ -1555,7 +1576,7 @@ class PlayState extends MusicBeatState
 				if(ClientPrefs.data.middleScroll)
 				{
 					babyArrow.x += 310;
-					if(i > 1) { //Up and Right
+					if(i > Note.midArray[Main.mania]) { //Up and Right
 						babyArrow.x += FlxG.width / 2 + 25;
 					}
 				}
@@ -2692,7 +2713,7 @@ class PlayState extends MusicBeatState
 	{
 
 		var eventKey:FlxKey = event.keyCode;
-		var key:Int = getKeyFromEvent(keysArray, eventKey);
+		var key:Int = getKeyFromEvent(keysArray[Main.mania], eventKey);
 
 		if (!controls.controllerMode)
 		{
@@ -2779,7 +2800,7 @@ class PlayState extends MusicBeatState
 	private function onKeyRelease(event:KeyboardEvent):Void
 	{
 		var eventKey:FlxKey = event.keyCode;
-		var key:Int = getKeyFromEvent(keysArray, eventKey);
+		var key:Int = getKeyFromEvent(keysArray[Main.mania], eventKey);
 		if(!controls.controllerMode && key > -1) keyReleased(key);
 	}
 
@@ -2821,7 +2842,7 @@ class PlayState extends MusicBeatState
 		var holdArray:Array<Bool> = [];
 		var pressArray:Array<Bool> = [];
 		var releaseArray:Array<Bool> = [];
-		for (key in keysArray)
+		for (key in keysArray[Main.mania])
 		{
 			holdArray.push(controls.pressed(key));
 			pressArray.push(controls.justPressed(key));
